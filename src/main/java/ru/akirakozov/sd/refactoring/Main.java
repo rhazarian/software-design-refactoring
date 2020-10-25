@@ -34,9 +34,9 @@ public class Main {
         context.setContextPath("/");
         server.setHandler(context);
 
-        context.addServlet(new ServletHolder(new AddProductServlet()), "/add-product");
-        context.addServlet(new ServletHolder(new GetProductsServlet()),"/get-products");
-        context.addServlet(new ServletHolder(new QueryServlet()),"/query");
+        context.addServlet(new ServletHolder(new AddProductServlet(() -> DriverManager.getConnection("jdbc:sqlite:test.db"))), "/add-product");
+        context.addServlet(new ServletHolder(new GetProductsServlet(() -> DriverManager.getConnection("jdbc:sqlite:test.db"))),"/get-products");
+        context.addServlet(new ServletHolder(new QueryServlet(() -> DriverManager.getConnection("jdbc:sqlite:test.db"))),"/query");
 
         server.start();
         server.join();

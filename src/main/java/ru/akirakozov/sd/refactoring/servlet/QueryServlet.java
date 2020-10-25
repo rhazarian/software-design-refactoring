@@ -1,5 +1,7 @@
 package ru.akirakozov.sd.refactoring.servlet;
 
+import ru.akirakozov.sd.refactoring.connection.ConnectionProvider;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,13 +15,19 @@ import java.sql.Statement;
  * @author akirakozov
  */
 public class QueryServlet extends HttpServlet {
+    final ConnectionProvider connectionProvider;
+
+    public QueryServlet(final ConnectionProvider connectionProvider) {
+        this.connectionProvider = connectionProvider;
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String command = request.getParameter("command");
 
         if ("max".equals(command)) {
             try {
-                try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
+                try (Connection c = connectionProvider.getConnection()) {
                     Statement stmt = c.createStatement();
                     ResultSet rs = stmt.executeQuery("SELECT * FROM PRODUCT ORDER BY PRICE DESC LIMIT 1");
                     response.getWriter().println("<html><body>");

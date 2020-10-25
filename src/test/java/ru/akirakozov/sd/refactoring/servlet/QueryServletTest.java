@@ -20,7 +20,7 @@ import static org.mockito.Mockito.times;
 
 public class QueryServletTest {
     @Test
-    public void testMax() throws IOException, SQLException {
+    public void testMax() throws SQLException {
         final Product product = new Product("maxProduct", 10);
 
         final ProductRepository productRepository = mock(ProductRepository.class);
@@ -28,13 +28,8 @@ public class QueryServletTest {
         final HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getParameter("command")).thenReturn("max");
 
-        final HttpServletResponse response = mock(HttpServletResponse.class);
-        final StringWriter writer = new StringWriter();
-        final PrintWriter printWriter = new PrintWriter(writer);
-        when(response.getWriter()).thenReturn(printWriter);
-
         final QueryServlet servlet = new QueryServlet(productRepository);
-        servlet.doGet(request, response);
+        final String result = servlet.processRequest(request);
 
         verify(productRepository, times(1)).getMaxPriceProduct();
         final String expectedResult = String.join(System.getProperty("line.separator")
@@ -42,13 +37,12 @@ public class QueryServletTest {
                 , "<h1>Product with max price: </h1>"
                 , product.getName() + "\t" + product.getPrice() + "</br>"
                 , "</body></html>"
-                , ""
         );
-        assertEquals(expectedResult, writer.getBuffer().toString());
+        assertEquals(expectedResult, result);
     }
 
     @Test
-    public void testMin() throws IOException, SQLException {
+    public void testMin() throws SQLException {
         final Product product = new Product("minProduct", 2);
 
         final ProductRepository productRepository = mock(ProductRepository.class);
@@ -56,13 +50,8 @@ public class QueryServletTest {
         final HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getParameter("command")).thenReturn("min");
 
-        final HttpServletResponse response = mock(HttpServletResponse.class);
-        final StringWriter writer = new StringWriter();
-        final PrintWriter printWriter = new PrintWriter(writer);
-        when(response.getWriter()).thenReturn(printWriter);
-
         final QueryServlet servlet = new QueryServlet(productRepository);
-        servlet.doGet(request, response);
+        final String result = servlet.processRequest(request);
 
         verify(productRepository, times(1)).getMinPriceProduct();
         final String expectedResult = String.join(System.getProperty("line.separator")
@@ -70,13 +59,12 @@ public class QueryServletTest {
                 , "<h1>Product with min price: </h1>"
                 , product.getName() + "\t" + product.getPrice() + "</br>"
                 , "</body></html>"
-                , ""
         );
-        assertEquals(expectedResult, writer.getBuffer().toString());
+        assertEquals(expectedResult, result);
     }
 
     @Test
-    public void testSum() throws IOException, SQLException {
+    public void testSum() throws SQLException {
         final long summaryPrice = 100;
 
         final ProductRepository productRepository = mock(ProductRepository.class);
@@ -84,13 +72,8 @@ public class QueryServletTest {
         final HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getParameter("command")).thenReturn("sum");
 
-        final HttpServletResponse response = mock(HttpServletResponse.class);
-        final StringWriter writer = new StringWriter();
-        final PrintWriter printWriter = new PrintWriter(writer);
-        when(response.getWriter()).thenReturn(printWriter);
-
         final QueryServlet servlet = new QueryServlet(productRepository);
-        servlet.doGet(request, response);
+        final String result = servlet.processRequest(request);
 
         verify(productRepository, times(1)).getSummaryPrice();
         final String expectedResult = String.join(System.getProperty("line.separator")
@@ -98,13 +81,12 @@ public class QueryServletTest {
                 , "Summary price: "
                 , Long.toString(summaryPrice)
                 , "</body></html>"
-                , ""
         );
-        assertEquals(expectedResult, writer.getBuffer().toString());
+        assertEquals(expectedResult, result);
     }
 
     @Test
-    public void testCount() throws IOException, SQLException {
+    public void testCount() throws SQLException {
         final int numberOfProducts = 25;
 
         final ProductRepository productRepository = mock(ProductRepository.class);
@@ -112,13 +94,8 @@ public class QueryServletTest {
         final HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getParameter("command")).thenReturn("count");
 
-        final HttpServletResponse response = mock(HttpServletResponse.class);
-        final StringWriter writer = new StringWriter();
-        final PrintWriter printWriter = new PrintWriter(writer);
-        when(response.getWriter()).thenReturn(printWriter);
-
         final QueryServlet servlet = new QueryServlet(productRepository);
-        servlet.doGet(request, response);
+        final String result = servlet.processRequest(request);
 
         verify(productRepository, times(1)).count();
         final String expectedResult = String.join(System.getProperty("line.separator")
@@ -126,8 +103,7 @@ public class QueryServletTest {
                 , "Number of products: "
                 , Integer.toString(numberOfProducts)
                 , "</body></html>"
-                , ""
         );
-        assertEquals(expectedResult, writer.getBuffer().toString());
+        assertEquals(expectedResult, result);
     }
 }

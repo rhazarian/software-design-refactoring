@@ -5,10 +5,6 @@ import ru.akirakozov.sd.refactoring.domain.Product;
 import ru.akirakozov.sd.refactoring.repository.ProductRepository;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,30 +14,24 @@ import static org.mockito.Mockito.*;
 
 public class GetProductsServletTest {
     @Test
-    public void testEmptyGet() throws IOException, SQLException {
+    public void testEmptyGet() throws SQLException {
         final ProductRepository productRepository = mock(ProductRepository.class);
         when(productRepository.getAll()).thenReturn(Collections.emptyList());
         final HttpServletRequest request = mock(HttpServletRequest.class);
 
-        final HttpServletResponse response = mock(HttpServletResponse.class);
-        final StringWriter writer = new StringWriter();
-        final PrintWriter printWriter = new PrintWriter(writer);
-        when(response.getWriter()).thenReturn(printWriter);
-
         final GetProductsServlet servlet = new GetProductsServlet(productRepository);
-        servlet.doGet(request, response);
+        final String result = servlet.processRequest(request);
 
         verify(productRepository, times(1)).getAll();
         final String expectedResult = String.join(System.getProperty("line.separator")
                 , "<html><body>"
                 , "</body></html>"
-                , ""
         );
-        assertEquals(expectedResult, writer.getBuffer().toString());
+        assertEquals(expectedResult, result);
     }
 
     @Test
-    public void testGet() throws IOException, SQLException {
+    public void testGet() throws SQLException {
         final Product product1 = new Product("product1", 5);
         final Product product2 = new Product("product2", 10);
 
@@ -49,13 +39,8 @@ public class GetProductsServletTest {
         when(productRepository.getAll()).thenReturn(Arrays.asList(product1, product2));
         final HttpServletRequest request = mock(HttpServletRequest.class);
 
-        final HttpServletResponse response = mock(HttpServletResponse.class);
-        final StringWriter writer = new StringWriter();
-        final PrintWriter printWriter = new PrintWriter(writer);
-        when(response.getWriter()).thenReturn(printWriter);
-
         final GetProductsServlet servlet = new GetProductsServlet(productRepository);
-        servlet.doGet(request, response);
+        final String result = servlet.processRequest(request);
 
         verify(productRepository, times(1)).getAll();
         final String expectedResult = String.join(System.getProperty("line.separator")
@@ -63,8 +48,7 @@ public class GetProductsServletTest {
                 , product1.getName() + "\t" + product1.getPrice() + "</br>"
                 , product2.getName() + "\t" + product2.getPrice() + "</br>"
                 , "</body></html>"
-                , ""
         );
-        assertEquals(expectedResult, writer.getBuffer().toString());
+        assertEquals(expectedResult, result);
     }
 }

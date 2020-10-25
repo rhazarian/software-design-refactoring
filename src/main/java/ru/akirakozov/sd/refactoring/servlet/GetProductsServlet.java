@@ -5,8 +5,6 @@ import ru.akirakozov.sd.refactoring.repository.ProductRepository;
 import ru.akirakozov.sd.refactoring.utility.ResponseBuilder;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.List;
 

@@ -3,18 +3,16 @@ package ru.akirakozov.sd.refactoring.servlet;
 import ru.akirakozov.sd.refactoring.domain.Product;
 import ru.akirakozov.sd.refactoring.repository.ProductRepository;
 
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.Optional;
 
 /**
  * @author akirakozov
  */
-public class QueryServlet extends HttpServlet {
+public class QueryServlet extends AbstractProductServlet {
     final ProductRepository productRepository;
 
     public QueryServlet(final ProductRepository productRepository) {
@@ -22,62 +20,44 @@ public class QueryServlet extends HttpServlet {
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String command = request.getParameter("command");
+    protected String processRequest(HttpServletRequest request) throws SQLException {
+        final StringWriter stringWriter = new StringWriter();
+        final PrintWriter writer = new PrintWriter(stringWriter);
+
+        final String command = request.getParameter("command");
 
         if ("max".equals(command)) {
-            try {
-                final Optional<Product> result = productRepository.getMaxPriceProduct();
+            final Optional<Product> result = productRepository.getMaxPriceProduct();
 
-                final PrintWriter writer = response.getWriter();
-                writer.println("<html><body>");
-                writer.println("<h1>Product with max price: </h1>");
-                result.ifPresent(product -> writer.println(product.getName() + "\t" + product.getPrice() + "</br>"));
-                writer.println("</body></html>");
-            } catch (final SQLException ex) {
-                throw new RuntimeException(ex);
-            }
+            writer.println("<html><body>");
+            writer.println("<h1>Product with max price: </h1>");
+            result.ifPresent(product -> writer.println(product.getName() + "\t" + product.getPrice() + "</br>"));
+            writer.print("</body></html>");
         } else if ("min".equals(command)) {
-            try {
-                final Optional<Product> result = productRepository.getMinPriceProduct();
+            final Optional<Product> result = productRepository.getMinPriceProduct();
 
-                final PrintWriter writer = response.getWriter();
-                writer.println("<html><body>");
-                writer.println("<h1>Product with min price: </h1>");
-                result.ifPresent(product -> writer.println(product.getName() + "\t" + product.getPrice() + "</br>"));
-                writer.println("</body></html>");
-            } catch (final SQLException ex) {
-                throw new RuntimeException(ex);
-            }
+            writer.println("<html><body>");
+            writer.println("<h1>Product with min price: </h1>");
+            result.ifPresent(product -> writer.println(product.getName() + "\t" + product.getPrice() + "</br>"));
+            writer.print("</body></html>");
         } else if ("sum".equals(command)) {
-            try {
-                final long result = productRepository.getSummaryPrice();
+            final long result = productRepository.getSummaryPrice();
 
-                final PrintWriter writer = response.getWriter();
-                writer.println("<html><body>");
-                writer.println("Summary price: ");
-                writer.println(result);
-                writer.println("</body></html>");
-            } catch (final SQLException ex) {
-                throw new RuntimeException(ex);
-            }
+            writer.println("<html><body>");
+            writer.println("Summary price: ");
+            writer.println(result);
+            writer.print("</body></html>");
         } else if ("count".equals(command)) {
-            try {
-                final int result = productRepository.count();
+            final int result = productRepository.count();
 
-                final PrintWriter writer = response.getWriter();
-                writer.println("<html><body>");
-                writer.println("Number of products: ");
-                writer.println(result);
-                writer.println("</body></html>");
-            } catch (final SQLException ex) {
-                throw new RuntimeException(ex);
-            }
+            writer.println("<html><body>");
+            writer.println("Number of products: ");
+            writer.println(result);
+            writer.print("</body></html>");
         } else {
-            response.getWriter().println("Unknown command: " + command);
+            writer.print("Unknown command: " + command);
         }
 
-        response.setContentType("text/html");
-        response.setStatus(HttpServletResponse.SC_OK);
+        return stringWriter.getBuffer().toString();
     }
 }

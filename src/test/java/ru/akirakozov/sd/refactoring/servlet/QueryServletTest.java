@@ -99,4 +99,19 @@ public class QueryServletTest {
         );
         assertEquals(expectedResult, result);
     }
+
+    @Test
+    public void testUnknownCommand() throws SQLException {
+        final String command = "unknown";
+
+        final ProductRepository productRepository = mock(ProductRepository.class);
+        final HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getParameter("command")).thenReturn(command);
+
+        final QueryServlet servlet = new QueryServlet(productRepository);
+        final String result = servlet.processRequest(request);
+
+        final String expectedResult = "Unknown command: " + command;
+        assertEquals(expectedResult, result);
+    }
 }

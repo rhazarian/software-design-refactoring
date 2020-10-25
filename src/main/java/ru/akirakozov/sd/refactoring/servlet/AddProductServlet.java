@@ -1,40 +1,33 @@
 package ru.akirakozov.sd.refactoring.servlet;
 
-import ru.akirakozov.sd.refactoring.connection.ConnectionProvider;
+import ru.akirakozov.sd.refactoring.domain.Product;
+import ru.akirakozov.sd.refactoring.repository.ProductRepository;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
+import java.sql.SQLException;
 
 /**
  * @author akirakozov
  */
 public class AddProductServlet extends HttpServlet {
-    final ConnectionProvider connectionProvider;
+    final ProductRepository productRepository;
 
-    public AddProductServlet(final ConnectionProvider connectionProvider) {
-        this.connectionProvider = connectionProvider;
+    public AddProductServlet(final ProductRepository productRepository) {
+        this.productRepository = productRepository;
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String name = request.getParameter("name");
-        long price = Long.parseLong(request.getParameter("price"));
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        final String name = request.getParameter("name");
+        final long price = Long.parseLong(request.getParameter("price"));
 
         try {
-            try (Connection c = connectionProvider.getConnection()) {
-                String sql = "INSERT INTO PRODUCT " +
-                        "(NAME, PRICE) VALUES (\"" + name + "\"," + price + ")";
-                Statement stmt = c.createStatement();
-                stmt.executeUpdate(sql);
-                stmt.close();
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            productRepository.addProduct(new Product(name, price));
+        } catch (final SQLException ex) {
+            throw new RuntimeException(ex);
         }
 
         response.setContentType("text/html");

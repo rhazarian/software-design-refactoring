@@ -1,43 +1,38 @@
 package ru.akirakozov.sd.refactoring.servlet;
 
 import org.junit.Test;
+import ru.akirakozov.sd.refactoring.domain.Product;
+import ru.akirakozov.sd.refactoring.repository.ProductRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class AddProductServletTest {
     @Test
     public void testAdd() throws SQLException, IOException {
-        final Statement stmt = mock(Statement.class);
-        final Connection connection = mock(Connection.class);
-        when(connection.createStatement()).thenReturn(stmt);
-        final AddProductServlet servlet = new AddProductServlet(() -> connection);
+        final Product product = new Product("newProduct", 500);
+
+        final ProductRepository productRepository = mock(ProductRepository.class);
         final HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getParameter("name")).thenReturn("newProduct");
-        when(request.getParameter("price")).thenReturn("500");
-        final String expectedQuery = "INSERT INTO PRODUCT (NAME, PRICE) VALUES (\"newProduct\",500)";
-        when(stmt.executeUpdate(any())).then(invocation -> {
-            assertEquals(expectedQuery, invocation.getArgument(0, String.class));
-            return 1;
-        });
+        when(request.getParameter("name")).thenReturn(product.getName());
+        when(request.getParameter("price")).thenReturn(Long.toString(product.getPrice()));
+
         final HttpServletResponse response = mock(HttpServletResponse.class);
         final StringWriter writer = new StringWriter();
         final PrintWriter printWriter = new PrintWriter(writer);
         when(response.getWriter()).thenReturn(printWriter);
+
+        final AddProductServlet servlet = new AddProductServlet(productRepository);
         servlet.doGet(request, response);
+
+        verify(productRepository, times(1)).addProduct(eq(product));
         final String expectedResult = String.join(System.getProperty("line.separator")
                 , "OK"
                 , ""

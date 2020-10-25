@@ -1,47 +1,39 @@
 package ru.akirakozov.sd.refactoring.servlet;
 
-import ru.akirakozov.sd.refactoring.connection.ConnectionProvider;
+import ru.akirakozov.sd.refactoring.domain.Product;
+import ru.akirakozov.sd.refactoring.repository.ProductRepository;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * @author akirakozov
  */
 public class GetProductsServlet extends HttpServlet {
-    final ConnectionProvider connectionProvider;
+    final ProductRepository productRepository;
 
-    public GetProductsServlet(final ConnectionProvider connectionProvider) {
-        this.connectionProvider = connectionProvider;
+    public GetProductsServlet(final ProductRepository productRepository) {
+        this.productRepository = productRepository;
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
-            try (Connection c = connectionProvider.getConnection()) {
-                Statement stmt = c.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT * FROM PRODUCT");
-                response.getWriter().println("<html><body>");
+            final List<Product> result = productRepository.getAll();
 
-                while (rs.next()) {
-                    String  name = rs.getString("name");
-                    int price  = rs.getInt("price");
-                    response.getWriter().println(name + "\t" + price + "</br>");
-                }
-                response.getWriter().println("</body></html>");
-
-                rs.close();
-                stmt.close();
+            final PrintWriter writer = response.getWriter();
+            response.getWriter().println("<html><body>");
+            for (final Product product : result) {
+                response.getWriter().println(product.getName() + "\t" + product.getPrice() + "</br>");
             }
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            response.getWriter().println("</body></html>");
+        } catch (final SQLException ex) {
+            throw new RuntimeException(ex);
         }
 
         response.setContentType("text/html");

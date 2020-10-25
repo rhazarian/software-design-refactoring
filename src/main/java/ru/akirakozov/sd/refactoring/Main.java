@@ -3,6 +3,8 @@ package ru.akirakozov.sd.refactoring;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import ru.akirakozov.sd.refactoring.repository.ProductRepository;
+import ru.akirakozov.sd.refactoring.repository.ProductRepositoryImpl;
 import ru.akirakozov.sd.refactoring.servlet.AddProductServlet;
 import ru.akirakozov.sd.refactoring.servlet.GetProductsServlet;
 import ru.akirakozov.sd.refactoring.servlet.QueryServlet;
@@ -34,9 +36,11 @@ public class Main {
         context.setContextPath("/");
         server.setHandler(context);
 
-        context.addServlet(new ServletHolder(new AddProductServlet(() -> DriverManager.getConnection("jdbc:sqlite:test.db"))), "/add-product");
-        context.addServlet(new ServletHolder(new GetProductsServlet(() -> DriverManager.getConnection("jdbc:sqlite:test.db"))),"/get-products");
-        context.addServlet(new ServletHolder(new QueryServlet(() -> DriverManager.getConnection("jdbc:sqlite:test.db"))),"/query");
+        final ProductRepository productRepository = new ProductRepositoryImpl(() -> DriverManager.getConnection("jdbc:sqlite:test.db"));
+
+        context.addServlet(new ServletHolder(new AddProductServlet(productRepository)), "/add-product");
+        context.addServlet(new ServletHolder(new GetProductsServlet(productRepository)),"/get-products");
+        context.addServlet(new ServletHolder(new QueryServlet(productRepository)),"/query");
 
         server.start();
         server.join();

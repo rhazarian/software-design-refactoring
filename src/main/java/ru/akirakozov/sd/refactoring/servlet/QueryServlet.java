@@ -2,6 +2,7 @@ package ru.akirakozov.sd.refactoring.servlet;
 
 import ru.akirakozov.sd.refactoring.domain.Product;
 import ru.akirakozov.sd.refactoring.repository.ProductRepository;
+import ru.akirakozov.sd.refactoring.utility.ResponseBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
@@ -21,43 +22,34 @@ public class QueryServlet extends AbstractProductServlet {
 
     @Override
     protected String processRequest(HttpServletRequest request) throws SQLException {
-        final StringWriter stringWriter = new StringWriter();
-        final PrintWriter writer = new PrintWriter(stringWriter);
+        final ResponseBuilder builder = new ResponseBuilder();
 
         final String command = request.getParameter("command");
 
         if ("max".equals(command)) {
             final Optional<Product> result = productRepository.getMaxPriceProduct();
 
-            writer.println("<html><body>");
-            writer.println("<h1>Product with max price: </h1>");
-            result.ifPresent(product -> writer.println(product.getName() + "\t" + product.getPrice() + "</br>"));
-            writer.print("</body></html>");
+            builder.append("<h1>Product with max price: </h1>");
+            result.ifPresent(builder::append);
         } else if ("min".equals(command)) {
             final Optional<Product> result = productRepository.getMinPriceProduct();
 
-            writer.println("<html><body>");
-            writer.println("<h1>Product with min price: </h1>");
-            result.ifPresent(product -> writer.println(product.getName() + "\t" + product.getPrice() + "</br>"));
-            writer.print("</body></html>");
+            builder.append("<h1>Product with min price: </h1>");
+            result.ifPresent(builder::append);
         } else if ("sum".equals(command)) {
             final long result = productRepository.getSummaryPrice();
 
-            writer.println("<html><body>");
-            writer.println("Summary price: ");
-            writer.println(result);
-            writer.print("</body></html>");
+            builder.append("Summary price: ");
+            builder.append(result);
         } else if ("count".equals(command)) {
             final int result = productRepository.count();
 
-            writer.println("<html><body>");
-            writer.println("Number of products: ");
-            writer.println(result);
-            writer.print("</body></html>");
+            builder.append("Number of products: ");
+            builder.append(result);
         } else {
-            writer.print("Unknown command: " + command);
+            return "Unknown command: " + command;
         }
 
-        return stringWriter.getBuffer().toString();
+        return builder.toString();
     }
 }

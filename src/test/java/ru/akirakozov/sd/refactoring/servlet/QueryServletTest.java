@@ -3,20 +3,13 @@ package ru.akirakozov.sd.refactoring.servlet;
 import org.junit.Test;
 import ru.akirakozov.sd.refactoring.domain.Product;
 import ru.akirakozov.sd.refactoring.repository.ProductRepository;
-import ru.akirakozov.sd.refactoring.repository.ProductRepositoryImpl;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.sql.*;
-import java.util.Collections;
+import java.sql.SQLException;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 
 public class QueryServletTest {
     @Test

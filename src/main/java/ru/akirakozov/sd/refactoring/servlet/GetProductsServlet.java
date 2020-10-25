@@ -2,6 +2,7 @@ package ru.akirakozov.sd.refactoring.servlet;
 
 import ru.akirakozov.sd.refactoring.domain.Product;
 import ru.akirakozov.sd.refactoring.repository.ProductRepository;
+import ru.akirakozov.sd.refactoring.utility.ResponseBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
@@ -21,17 +22,14 @@ public class GetProductsServlet extends AbstractProductServlet {
 
     @Override
     protected String processRequest(HttpServletRequest request) throws SQLException {
-        final StringWriter stringWriter = new StringWriter();
-        final PrintWriter writer = new PrintWriter(stringWriter);
+        final ResponseBuilder builder = new ResponseBuilder();
 
         final List<Product> result = productRepository.getAll();
 
-        writer.println("<html><body>");
         for (final Product product : result) {
-            writer.println(product.getName() + "\t" + product.getPrice() + "</br>");
+            builder.append(product);
         }
-        writer.print("</body></html>");
 
-        return stringWriter.getBuffer().toString();
+        return builder.toString();
     }
 }
